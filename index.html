@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portfolio // Dark Standard Edition</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="container navbar">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="/" class="brand">DEV<span>PORTFOLIO</span>_</a>
+        <span class="status-pill"><span class="status-dot"></span> 2026-27 ACTIVE</span>
+      </div>
+      <nav class="nav-links">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="#projects">Work & Skills</a>
+        <a class="nav-link" href="#inquiry">Inquiry</a>
+        <a class="nav-link" href="/manager.html">Console</a>
+        <span id="authActionBox">
+          <a class="nav-btn primary" href="/auth.html">Sign In</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero / Identity Section (Split View) -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <!-- Left: Student Terminal Identity Card -->
+      <div class="identity-card">
+        <div class="window-header">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="window-title">profile.json — student-session</span>
+        </div>
+        <div class="identity-body">
+          <div class="identity-header">
+            <div class="avatar-badge" id="avatarBadge">AP</div>
+            <div class="name-box">
+              <h1 id="dispName">Adithyan P.S</h1>
+              <div class="roll-tag">ID: <span id="dispRoll">26CSMM01</span></div>
+            </div>
+          </div>
+          <table class="meta-table">
+            <tbody>
+              <tr>
+                <td>Program / Course</td>
+                <td id="dispCourse">B.Sc. Computer Science and Mathematics</td>
+              </tr>
+              <tr>
+                <td>Department</td>
+                <td>Department of Physical Sciences</td>
+              </tr>
+              <tr>
+                <td>Institution</td>
+                <td id="dispInstitution">Kristu Jayanti (Deemed to be University)</td>
+              </tr>
+              <tr>
+                <td>Contact Email</td>
+                <td id="dispEmail">adithyan.ps@kristujayanti.edu.in</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: Live Metrics & Bio Widget -->
+      <div class="metrics-card">
+        <div>
+          <div class="metrics-title">SYSTEM METRICS // OVERVIEW</div>
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-num" id="statProjects">0</div>
+              <div class="stat-label">Projects</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="statSkills">0</div>
+              <div class="stat-label">Core Skills</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="statAcademic">0</div>
+              <div class="stat-label">Academic</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="statCerts">0</div>
+              <div class="stat-label">Certs</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="bio-box">
+            <strong>Candidate Statement:</strong>
+            <p id="dispBio" style="margin-top: 4px;">Undergraduate student specializing in full-stack web architectures, distributed database paradigms, and algorithmic problem-solving.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Filter & Search Toolbar -->
+  <section class="toolbar-section" id="projects">
+    <div class="container">
+      <div class="toolbar">
+        <div class="filter-pills" id="categoryFilters">
+          <button class="pill-btn active" data-cat="ALL">All Items (<span id="countAll">0</span>)</button>
+          <button class="pill-btn" data-cat="Project">Projects (<span id="countProj">0</span>)</button>
+          <button class="pill-btn" data-cat="Skill">Skills (<span id="countSkill">0</span>)</button>
+          <button class="pill-btn" data-cat="Academic">Academic (<span id="countAcad">0</span>)</button>
+          <button class="pill-btn" data-cat="Certification">Certs (<span id="countCert">0</span>)</button>
+        </div>
+        <div class="search-wrapper">
+          <input type="text" id="searchInput" class="search-input" placeholder="Search entries, keywords, stack...">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Portfolio Records Grid -->
+  <section class="portfolio-grid-section">
+    <div class="container">
+      <div class="cards-grid" id="cardsGrid">
+        <!-- Rendered dynamically via script.js -->
+        <div class="empty-state">
+          <h3>Loading portfolio entries...</h3>
+          <p>Connecting to database.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Direct Inquiries / Contact Section (New Feature) -->
+  <section class="inquiry-section" id="inquiry">
+    <div class="container">
+      <div class="section-head">
+        <h2>Submit an Inquiry / Message</h2>
+        <p>Send a direct message or collaborative inquiry to the candidate</p>
+      </div>
+      <form class="inquiry-form" id="inquiryForm">
+        <div id="inquiryAlert" class="alert"></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inqName">Your Name</label>
+            <input type="text" id="inqName" class="form-control" required placeholder="e.g. Dr. Examiner / Recruiter">
+          </div>
+          <div class="form-group">
+            <label for="inqEmail">Your Email</label>
+            <input type="email" id="inqEmail" class="form-control" required placeholder="name@institution.edu">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inqSubject">Subject / Topic</label>
+          <input type="text" id="inqSubject" class="form-control" required placeholder="e.g. Project Evaluation / Research Discussion">
+        </div>
+        <div class="form-group">
+          <label for="inqMessage">Message</label>
+          <textarea id="inqMessage" class="form-control" required placeholder="Enter message details..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit" id="inqSubmitBtn">Transmit Message ➔</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong id="footName">Adithyan P.S</strong> (<span id="footRoll">26CSMM01</span>) &bull;
+        Kristu Jayanti (Deemed to be University)
+      </div>
+      <div>Department of Physical Sciences &copy; 2026-2027. All Rights Reserved.</div>
+    </div>
+  </footer>
+
+</body>
+</html>

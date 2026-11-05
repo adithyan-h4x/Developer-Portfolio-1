@@ -1,0 +1,17 @@
+{
+  "name": "student-portfolio",
+  "version": "1.0.0",
+  "description": "Student Portfolio Management System - Node.js, Express, MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-mongo": "^5.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "mongoose": "^8.5.0"
+  }
+}

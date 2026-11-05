@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Management Console // Dark Standard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="manager.js" defer></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container navbar">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="/" class="brand">DEV<span>PORTFOLIO</span>_</a>
+        <span class="status-pill"><span class="status-dot"></span> CONSOLE MODE</span>
+      </div>
+      <nav class="nav-links">
+        <a class="nav-link" href="/">View Dashboard</a>
+        <a class="nav-link active" href="/manager.html">Console</a>
+        <button class="nav-btn" id="logoutBtn" type="button">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Console Header -->
+  <div class="container">
+    <div class="console-header">
+      <div class="console-title">
+        <h1>Developer Console & Records Manager</h1>
+        <p>Publish portfolio records, manage personal credentials, and inspect visitor inquiries</p>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="tabPublish">Publish Entry</button>
+      <button class="tab-btn" data-tab="tabRecords">Saved Records (<span id="tabCountRecords">0</span>)</button>
+      <button class="tab-btn" data-tab="tabProfile">Profile Settings</button>
+      <button class="tab-btn" data-tab="tabInquiries">Inquiries Inbox (<span id="tabCountInquiries">0</span>)</button>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="consoleAlert" class="alert"></div>
+
+    <!-- Tab 1: Publish / Edit Entry -->
+    <div class="tab-panel active" id="tabPublish">
+      <div class="console-card">
+        <div class="card-header-bar">
+          <h2 id="formTitle">Publish Portfolio Record</h2>
+          <button id="cancelEditBtn" class="btn-sm btn-delete" style="display:none;" type="button">Cancel Editing</button>
+        </div>
+        <form id="recordForm">
+          <input type="hidden" id="editItemId" value="">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="itemCategory">Category *</label>
+              <select id="itemCategory" class="form-control" required>
+                <option value="Project">Project (Technical Work / Application)</option>
+                <option value="Skill">Skill (Core Competency / Framework)</option>
+                <option value="Academic">Academic (Degree / Coursework / Honors)</option>
+                <option value="Certification">Certification (Credentials / Verification)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="itemTitle">Record Title *</label>
+              <input type="text" id="itemTitle" class="form-control" required placeholder="e.g. Distributed Database Engine">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="itemSubtitle">Subtitle / Tech Stack / Org</label>
+              <input type="text" id="itemSubtitle" class="form-control" placeholder="e.g. Node.js, Express, MongoDB, C++">
+            </div>
+            <div class="form-group">
+              <label for="itemDate">Date / Timeline</label>
+              <input type="text" id="itemDate" class="form-control" placeholder="e.g. 2026 or 2025 - Present">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="itemLink">Resource URL / GitHub Repository</label>
+            <input type="url" id="itemLink" class="form-control" placeholder="https://github.com/username/project">
+          </div>
+
+          <div class="form-group">
+            <label for="itemDescription">Detailed Description *</label>
+            <textarea id="itemDescription" class="form-control" required placeholder="Enter a comprehensive overview of this portfolio entry..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitRecordBtn">Publish Record to Portfolio ➔</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tab 2: Saved Records List -->
+    <div class="tab-panel" id="tabRecords">
+      <div class="console-card">
+        <div class="card-header-bar">
+          <h2>Database Records Index</h2>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Title</th>
+                <th>Tech Stack / Subtitle</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recordsTableBody">
+              <tr>
+                <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">Loading saved records...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Profile Settings -->
+    <div class="tab-panel" id="tabProfile">
+      <div class="console-card">
+        <div class="card-header-bar">
+          <h2>Candidate Credentials & Profile Editor</h2>
+        </div>
+        <form id="profileForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profName">Student Name *</label>
+              <input type="text" id="profName" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="profRoll">Roll Number / Registration ID</label>
+              <input type="text" id="profRoll" class="form-control">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profCourse">Course / Degree Program</label>
+              <input type="text" id="profCourse" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="profInstitution">University / Institution</label>
+              <input type="text" id="profInstitution" class="form-control">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="profEmail">Primary Contact Email *</label>
+            <input type="email" id="profEmail" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="profBio">Candidate Statement / Bio</label>
+            <textarea id="profBio" class="form-control"></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit">Save Profile Changes ➔</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tab 4: Inquiries Inbox -->
+    <div class="tab-panel" id="tabInquiries">
+      <div class="console-card">
+        <div class="card-header-bar">
+          <h2>Visitor Messages & Inquiries</h2>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Sender</th>
+                <th>Email</th>
+                <th>Subject</th>
+                <th>Message Content</th>
+              </tr>
+            </thead>
+            <tbody id="inquiriesTableBody">
+              <tr>
+                <td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px;">No inquiries received yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer" style="margin-top: 40px;">
+    <div class="container footer-inner">
+      <div>Kristu Jayanti (Deemed to be University) &bull; Developer Console</div>
+      <div>Session Active &bull; Port 3000</div>
+    </div>
+  </footer>
+
+</body>
+</html>
