@@ -1,93 +1,168 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const tabLoginBtn = document.getElementById("tabLoginBtn");
-  const tabRegisterBtn = document.getElementById("tabRegisterBtn");
-  const loginForm = document.getElementById("loginForm");
-  const registerForm = document.getElementById("registerForm");
-  const authAlert = document.getElementById("authAlert");
+const express = require("express");
+const router = express.Router();
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 
-  tabLoginBtn.addEventListener("click", () => {
-    tabLoginBtn.classList.add("active");
-    tabRegisterBtn.classList.remove("active");
-    loginForm.style.display = "block";
-    registerForm.style.display = "none";
-    hideAlert();
-  });
+// Register a new student account
+router.post("/register", async (req, res) => {
+  try {
+    const { name, email, password, rollNo, course, institution } = req.body;
 
-  tabRegisterBtn.addEventListener("click", () => {
-    tabRegisterBtn.classList.add("active");
-    tabLoginBtn.classList.remove("active");
-    registerForm.style.display = "block";
-    loginForm.style.display = "none";
-    hideAlert();
-  });
-
-  // Handle Login
-  loginForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    hideAlert();
-
-    const email = document.getElementById("loginEmail").value.trim();
-    const password = document.getElementById("loginPassword").value;
-
-    fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Login failed");
-        window.location.href = "/manager.html";
-      })
-      .catch((err) => {
-        showAlert(err.message, "error");
-      });
-  });
-
-  // Handle Register
-  registerForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    hideAlert();
-
-    const name = document.getElementById("regName").value.trim();
-    const rollNo = document.getElementById("regRoll").value.trim();
-    const course = document.getElementById("regCourse").value.trim();
-    const institution = document.getElementById("regInstitution").value.trim();
-    const email = document.getElementById("regEmail").value.trim();
-    const password = document.getElementById("regPassword").value;
-    const confirmPassword = document.getElementById("regConfirmPassword").value;
-
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "Name, email and password are required" });
+    }
     if (password.length < 8) {
-      showAlert("Password must be at least 8 characters long", "error");
-      return;
-    }
-    if (password !== confirmPassword) {
-      showAlert("Passwords do not match", "error");
-      return;
+      return res.status(400).json({ error: "Password must be at least 8 characters long" });
     }
 
-    fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, rollNo, course, institution, email, password })
-    })
-      .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Registration failed");
-        window.location.href = "/manager.html";
-      })
-      .catch((err) => {
-        showAlert(err.message, "error");
-      });
-  });
+    const existing = await User.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      return res.status(400).json({ error: "An account with this email already exists" });
+    }
 
-  function showAlert(msg, type) {
-    authAlert.className = `alert alert-${type}`;
-    authAlert.textContent = msg;
-    authAlert.style.display = "block";
-  }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  function hideAlert() {
-    authAlert.style.display = "none";
+    const user = new User({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password: hashedPassword,
+      rollNo: (rollNo && rollNo.trim()) || "26CSM99",
+      course: (course && course.trim()) || "B.Sc. Computer Science and Mathematics",
+      institution: (institution && institution.trim()) || "Kristu Jayanti (Deemed to be University)"
+    });
+
+    await user.save();
+    req.session.userId = user._id;
+
+    res.status(201).json({
+      message: "Account registered successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        rollNo: user.rollNo,
+        course: user.course,
+        institution: user.institution,
+        bio: user.bio
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Server registration failed: " + err.message });
   }
 });
+
+// Login
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+
+    req.session.userId = user._id;
+    res.json({
+      message: "Logged in successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        rollNo: user.rollNo,
+        course: user.course,
+        institution: user.institution,
+        bio: user.bio
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Login failed: " + err.message });
+  }
+});
+
+// Logout
+router.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) return res.status(500).json({ error: "Logout failed" });
+    res.clearCookie("connect.sid");
+    res.json({ message: "Logged out successfully" });
+  });
+});
+
+// Get current user profile
+router.get("/me", async (req, res) => {
+  try {
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const user = await User.findById(req.session.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json({
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        rollNo: user.rollNo,
+        course: user.course,
+        institution: user.institution,
+        bio: user.bio
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch user profile" });
+  }
+});
+
+// Update personal profile
+router.put("/profile", async (req, res) => {
+  try {
+    if (!req.session || !req.session.userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const { name, rollNo, course, institution, email, bio } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: "Name and email cannot be empty" });
+    }
+
+    const user = await User.findById(req.session.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    user.name = name.trim();
+    user.email = email.toLowerCase().trim();
+    if (rollNo !== undefined) user.rollNo = rollNo.trim();
+    if (course !== undefined) user.course = course.trim();
+    if (institution !== undefined) user.institution = institution.trim();
+    if (bio !== undefined) user.bio = bio.trim();
+
+    await user.save();
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        rollNo: user.rollNo,
+        course: user.course,
+        institution: user.institution,
+        bio: user.bio
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update profile: " + err.message });
+  }
+});
+
+module.exports = router;
